@@ -8,8 +8,7 @@ services:
     envVars:
       - key: PYTHONPATH
         value: .
-  - type: web
+  - type: static_site
     name: arlington-compstat-frontend
-    env: static
     buildCommand: ""
     publishPath: frontend
