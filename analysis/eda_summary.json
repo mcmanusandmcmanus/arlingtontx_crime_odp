@@ -1,0 +1,555 @@
+{
+  "compstat_overall": {
+    "All": [
+      {
+        "label": "All",
+        "window_days": 7,
+        "start_date": "2025-11-05",
+        "end_date": "2025-11-12",
+        "current_count": 39,
+        "previous_period_count": 59,
+        "yoy_count": 0,
+        "period_change": -0.3389830508474576,
+        "yoy_change": null
+      },
+      {
+        "label": "All",
+        "window_days": 28,
+        "start_date": "2025-10-15",
+        "end_date": "2025-11-12",
+        "current_count": 235,
+        "previous_period_count": 299,
+        "yoy_count": 0,
+        "period_change": -0.2140468227424749,
+        "yoy_change": null
+      },
+      {
+        "label": "All",
+        "window_days": 365,
+        "start_date": "2024-11-12",
+        "end_date": "2025-11-12",
+        "current_count": 4330,
+        "previous_period_count": 0,
+        "yoy_count": 0,
+        "period_change": null,
+        "yoy_change": null
+      }
+    ]
+  },
+  "compstat_by_category": {
+    "Crime Against Person": [
+      {
+        "label": "Crime Against Person",
+        "window_days": 7,
+        "start_date": "2025-11-05",
+        "end_date": "2025-11-12",
+        "current_count": 15,
+        "previous_period_count": 20,
+        "yoy_count": 0,
+        "period_change": -0.25,
+        "yoy_change": null
+      },
+      {
+        "label": "Crime Against Person",
+        "window_days": 28,
+        "start_date": "2025-10-15",
+        "end_date": "2025-11-12",
+        "current_count": 86,
+        "previous_period_count": 123,
+        "yoy_count": 0,
+        "period_change": -0.3008130081300813,
+        "yoy_change": null
+      },
+      {
+        "label": "Crime Against Person",
+        "window_days": 365,
+        "start_date": "2024-11-12",
+        "end_date": "2025-11-12",
+        "current_count": 1431,
+        "previous_period_count": 0,
+        "yoy_count": 0,
+        "period_change": null,
+        "yoy_change": null
+      }
+    ],
+    "Crime Against Property": [
+      {
+        "label": "Crime Against Property",
+        "window_days": 7,
+        "start_date": "2025-11-05",
+        "end_date": "2025-11-12",
+        "current_count": 17,
+        "previous_period_count": 28,
+        "yoy_count": 0,
+        "period_change": -0.39285714285714285,
+        "yoy_change": null
+      },
+      {
+        "label": "Crime Against Property",
+        "window_days": 28,
+        "start_date": "2025-10-15",
+        "end_date": "2025-11-12",
+        "current_count": 106,
+        "previous_period_count": 118,
+        "yoy_count": 0,
+        "period_change": -0.1016949152542373,
+        "yoy_change": null
+      },
+      {
+        "label": "Crime Against Property",
+        "window_days": 365,
+        "start_date": "2024-11-12",
+        "end_date": "2025-11-12",
+        "current_count": 2059,
+        "previous_period_count": 0,
+        "yoy_count": 0,
+        "period_change": null,
+        "yoy_change": null
+      }
+    ],
+    "Crime Against Society": [
+      {
+        "label": "Crime Against Society",
+        "window_days": 7,
+        "start_date": "2025-11-05",
+        "end_date": "2025-11-12",
+        "current_count": 7,
+        "previous_period_count": 11,
+        "yoy_count": 0,
+        "period_change": -0.36363636363636365,
+        "yoy_change": null
+      },
+      {
+        "label": "Crime Against Society",
+        "window_days": 28,
+        "start_date": "2025-10-15",
+        "end_date": "2025-11-12",
+        "current_count": 43,
+        "previous_period_count": 58,
+        "yoy_count": 0,
+        "period_change": -0.25862068965517243,
+        "yoy_change": null
+      },
+      {
+        "label": "Crime Against Society",
+        "window_days": 365,
+        "start_date": "2024-11-12",
+        "end_date": "2025-11-12",
+        "current_count": 840,
+        "previous_period_count": 0,
+        "yoy_count": 0,
+        "period_change": null,
+        "yoy_change": null
+      }
+    ]
+  },
+  "hour_distribution": [
+    {
+      "hour_of_day": 0,
+      "count": 362
+    },
+    {
+      "hour_of_day": 1,
+      "count": 183
+    },
+    {
+      "hour_of_day": 2,
+      "count": 150
+    },
+    {
+      "hour_of_day": 3,
+      "count": 141
+    },
+    {
+      "hour_of_day": 4,
+      "count": 101
+    },
+    {
+      "hour_of_day": 5,
+      "count": 66
+    },
+    {
+      "hour_of_day": 6,
+      "count": 83
+    },
+    {
+      "hour_of_day": 7,
+      "count": 90
+    },
+    {
+      "hour_of_day": 8,
+      "count": 171
+    },
+    {
+      "hour_of_day": 9,
+      "count": 152
+    },
+    {
+      "hour_of_day": 10,
+      "count": 136
+    },
+    {
+      "hour_of_day": 11,
+      "count": 163
+    },
+    {
+      "hour_of_day": 12,
+      "count": 249
+    },
+    {
+      "hour_of_day": 13,
+      "count": 172
+    },
+    {
+      "hour_of_day": 14,
+      "count": 179
+    },
+    {
+      "hour_of_day": 15,
+      "count": 201
+    },
+    {
+      "hour_of_day": 16,
+      "count": 205
+    },
+    {
+      "hour_of_day": 17,
+      "count": 223
+    },
+    {
+      "hour_of_day": 18,
+      "count": 221
+    },
+    {
+      "hour_of_day": 19,
+      "count": 219
+    },
+    {
+      "hour_of_day": 20,
+      "count": 213
+    },
+    {
+      "hour_of_day": 21,
+      "count": 249
+    },
+    {
+      "hour_of_day": 22,
+      "count": 217
+    },
+    {
+      "hour_of_day": 23,
+      "count": 184
+    }
+  ],
+  "day_distribution": [
+    {
+      "day_of_week": "Friday",
+      "count": 698
+    },
+    {
+      "day_of_week": "Thursday",
+      "count": 649
+    },
+    {
+      "day_of_week": "Tuesday",
+      "count": 624
+    },
+    {
+      "day_of_week": "Monday",
+      "count": 596
+    },
+    {
+      "day_of_week": "Sunday",
+      "count": 590
+    },
+    {
+      "day_of_week": "Wednesday",
+      "count": 587
+    },
+    {
+      "day_of_week": "Saturday",
+      "count": 586
+    }
+  ],
+  "beats_distribution": [
+    {
+      "Beats": 480,
+      "count": 639
+    },
+    {
+      "Beats": 450,
+      "count": 606
+    },
+    {
+      "Beats": 420,
+      "count": 587
+    },
+    {
+      "Beats": 430,
+      "count": 564
+    },
+    {
+      "Beats": 460,
+      "count": 507
+    },
+    {
+      "Beats": 470,
+      "count": 501
+    },
+    {
+      "Beats": 440,
+      "count": 481
+    },
+    {
+      "Beats": 410,
+      "count": 445
+    }
+  ],
+  "recent_daily_counts": [
+    {
+      "period": "2025-09-14",
+      "count": 11
+    },
+    {
+      "period": "2025-09-15",
+      "count": 7
+    },
+    {
+      "period": "2025-09-16",
+      "count": 13
+    },
+    {
+      "period": "2025-09-17",
+      "count": 8
+    },
+    {
+      "period": "2025-09-18",
+      "count": 11
+    },
+    {
+      "period": "2025-09-19",
+      "count": 16
+    },
+    {
+      "period": "2025-09-20",
+      "count": 5
+    },
+    {
+      "period": "2025-09-21",
+      "count": 14
+    },
+    {
+      "period": "2025-09-22",
+      "count": 13
+    },
+    {
+      "period": "2025-09-23",
+      "count": 11
+    },
+    {
+      "period": "2025-09-24",
+      "count": 16
+    },
+    {
+      "period": "2025-09-25",
+      "count": 10
+    },
+    {
+      "period": "2025-09-26",
+      "count": 11
+    },
+    {
+      "period": "2025-09-27",
+      "count": 12
+    },
+    {
+      "period": "2025-09-28",
+      "count": 11
+    },
+    {
+      "period": "2025-09-29",
+      "count": 14
+    },
+    {
+      "period": "2025-09-30",
+      "count": 19
+    },
+    {
+      "period": "2025-10-01",
+      "count": 7
+    },
+    {
+      "period": "2025-10-02",
+      "count": 17
+    },
+    {
+      "period": "2025-10-03",
+      "count": 10
+    },
+    {
+      "period": "2025-10-04",
+      "count": 9
+    },
+    {
+      "period": "2025-10-05",
+      "count": 4
+    },
+    {
+      "period": "2025-10-06",
+      "count": 9
+    },
+    {
+      "period": "2025-10-07",
+      "count": 9
+    },
+    {
+      "period": "2025-10-08",
+      "count": 9
+    },
+    {
+      "period": "2025-10-09",
+      "count": 10
+    },
+    {
+      "period": "2025-10-10",
+      "count": 12
+    },
+    {
+      "period": "2025-10-11",
+      "count": 10
+    },
+    {
+      "period": "2025-10-12",
+      "count": 9
+    },
+    {
+      "period": "2025-10-13",
+      "count": 3
+    },
+    {
+      "period": "2025-10-14",
+      "count": 10
+    },
+    {
+      "period": "2025-10-15",
+      "count": 7
+    },
+    {
+      "period": "2025-10-16",
+      "count": 12
+    },
+    {
+      "period": "2025-10-17",
+      "count": 12
+    },
+    {
+      "period": "2025-10-18",
+      "count": 14
+    },
+    {
+      "period": "2025-10-19",
+      "count": 10
+    },
+    {
+      "period": "2025-10-20",
+      "count": 11
+    },
+    {
+      "period": "2025-10-21",
+      "count": 16
+    },
+    {
+      "period": "2025-10-22",
+      "count": 10
+    },
+    {
+      "period": "2025-10-23",
+      "count": 7
+    },
+    {
+      "period": "2025-10-24",
+      "count": 7
+    },
+    {
+      "period": "2025-10-25",
+      "count": 8
+    },
+    {
+      "period": "2025-10-26",
+      "count": 9
+    },
+    {
+      "period": "2025-10-27",
+      "count": 11
+    },
+    {
+      "period": "2025-10-28",
+      "count": 5
+    },
+    {
+      "period": "2025-10-29",
+      "count": 10
+    },
+    {
+      "period": "2025-10-30",
+      "count": 10
+    },
+    {
+      "period": "2025-10-31",
+      "count": 11
+    },
+    {
+      "period": "2025-11-01",
+      "count": 9
+    },
+    {
+      "period": "2025-11-02",
+      "count": 6
+    },
+    {
+      "period": "2025-11-03",
+      "count": 8
+    },
+    {
+      "period": "2025-11-04",
+      "count": 2
+    },
+    {
+      "period": "2025-11-05",
+      "count": 6
+    },
+    {
+      "period": "2025-11-06",
+      "count": 8
+    },
+    {
+      "period": "2025-11-07",
+      "count": 12
+    },
+    {
+      "period": "2025-11-08",
+      "count": 3
+    },
+    {
+      "period": "2025-11-09",
+      "count": 2
+    },
+    {
+      "period": "2025-11-10",
+      "count": 6
+    },
+    {
+      "period": "2025-11-11",
+      "count": 4
+    },
+    {
+      "period": "2025-11-12",
+      "count": 1
+    }
+  ],
+  "top_categories": {
+    "Crime Against Property": 2059,
+    "Crime Against Person": 1431,
+    "Crime Against Society": 840
+  }
+}

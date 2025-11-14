@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arlington East Crime - CompStat Dashboard</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+</head>
+<body>
+<div class="layout">
+    <header>
+        <h1>Arlington East District CompStat</h1>
+        <p>Real-time situational awareness built on Arlington open data. Compare 7-day, 28-day, and 365-day windows, inspect hotspots, and review machine learning forecasts.</p>
+    </header>
+
+    <div class="hero" id="kpiCards">
+        <div class="card">
+            <h3>Total Incidents (YTD)</h3>
+            <div class="value" id="totalIncidents">--</div>
+            <p id="coverageRange"></p>
+        </div>
+        <div class="card">
+            <h3>7-Day Change</h3>
+            <div class="value" id="sevenDayCount">--</div>
+            <div class="pill" id="sevenDayChange">--</div>
+        </div>
+        <div class="card">
+            <h3>28-Day Change</h3>
+            <div class="value" id="twentyEightDayCount">--</div>
+            <div class="pill" id="twentyEightDayChange">--</div>
+        </div>
+        <div class="card">
+            <h3>Forecast Next 7 Days</h3>
+            <div class="value" id="forecastTotal">--</div>
+            <p id="forecastDetail"></p>
+        </div>
+    </div>
+
+    <section class="card chart">
+        <h2>Daily Incident Trend</h2>
+        <svg id="trendChart"></svg>
+    </section>
+
+    <div class="section-grid">
+        <div class="card">
+            <h2>CompStat Table</h2>
+            <table id="compstatTable">
+                <thead>
+                <tr>
+                    <th>Window</th>
+                    <th>Count</th>
+                    <th>vs Prior</th>
+                    <th>YoY</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="card chart">
+            <h2>Crime Category Mix</h2>
+            <svg id="categoryChart"></svg>
+        </div>
+    </div>
+
+    <section class="card">
+        <h2>Random Forest Forecast (7 days)</h2>
+        <div id="forecastList"></div>
+    </section>
+
+    <section class="card">
+        <h2>Operational Notes</h2>
+        <ul>
+            <li>Use the API (FastAPI) at <code>/compstat</code>, <code>/timeseries</code>, and <code>/ml/*</code> for integration.</li>
+            <li>Deploy backend to Render (FastAPI + Uvicorn) and serve this D3 front-end statically.</li>
+            <li>Refresh caches via <code>POST /cache/refresh</code> after loading new incidents.</li>
+        </ul>
+    </section>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
+
