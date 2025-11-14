@@ -89,13 +89,32 @@ def build_time_series(
     freq: str = "D",
     as_of: Optional[datetime] = None,
     periods: Optional[int] = None,
+    group_by: Optional[str] = None,
 ) -> pd.DataFrame:
     if as_of is None:
         as_of = df["occurred_ts"].max()
     data = df[df["occurred_ts"] <= as_of].copy()
+    if group_by and group_by in data.columns:
+        grouped = (
+            data.groupby([group_by, pd.Grouper(key="occurred_ts", freq=freq)])
+            ["Case Number"]
+            .count()
+            .reset_index()
+            .rename(columns={"Case Number": "count"})
+        )
+        if periods:
+            grouped = (
+                grouped.sort_values("occurred_ts")
+                .groupby(group_by, group_keys=False)
+                .tail(periods)
+            )
+        grouped["period"] = grouped["occurred_ts"].dt.strftime("%Y-%m-%d")
+        grouped = grouped.drop(columns=["occurred_ts"])
+        grouped = grouped.rename(columns={group_by: "group"})
+        return grouped
+
     data.set_index("occurred_ts", inplace=True)
-    series = data.resample(freq)["Case Number"].count()
-    series = series.rename("count")
+    series = data.resample(freq)["Case Number"].count().rename("count")
     if periods:
         series = series.iloc[-periods:]
     result = series.reset_index().rename(columns={"occurred_ts": "period"})

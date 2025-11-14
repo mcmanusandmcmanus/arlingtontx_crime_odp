@@ -11,70 +11,121 @@
 <div class="layout">
     <header>
         <h1>Arlington East District CompStat</h1>
-        <p>Real-time situational awareness built on Arlington open data. Compare 7-day, 28-day, and 365-day windows, inspect hotspots, and review machine learning forecasts.</p>
+        <p>Real-time situational awareness built on Arlington open data. Overview cards stay mission-critical while supporting tabs let you drill into time patterns, beats, offense mix, and cases.</p>
     </header>
 
-    <div class="hero" id="kpiCards">
-        <div class="card">
-            <h3>Total Incidents (YTD)</h3>
-            <div class="value" id="totalIncidents">--</div>
-            <p id="coverageRange"></p>
-        </div>
-        <div class="card">
-            <h3>7-Day Change</h3>
-            <div class="value" id="sevenDayCount">--</div>
-            <div class="pill" id="sevenDayChange">--</div>
-        </div>
-        <div class="card">
-            <h3>28-Day Change</h3>
-            <div class="value" id="twentyEightDayCount">--</div>
-            <div class="pill" id="twentyEightDayChange">--</div>
-        </div>
-        <div class="card">
-            <h3>Forecast Next 7 Days</h3>
-            <div class="value" id="forecastTotal">--</div>
-            <p id="forecastDetail"></p>
-        </div>
-    </div>
+    <nav class="tabs">
+        <button class="tab-button active" data-target="overview">Overview</button>
+        <button class="tab-button" data-target="time-tempo">Time &amp; Tempo</button>
+        <button class="tab-button" data-target="beats">Beats &amp; Areas</button>
+        <button class="tab-button" data-target="offense">Crime Types &amp; Violence</button>
+        <button class="tab-button" data-target="cases">Case Intelligence</button>
+    </nav>
 
-    <section class="card chart">
-        <h2>Daily Incident Trend</h2>
-        <svg id="trendChart"></svg>
+    <section id="overview" class="tab-section active">
+        <div class="hero" id="kpiCards">
+            <div class="card">
+                <h3>Total Incidents (YTD)</h3>
+                <div class="value" id="totalIncidents">--</div>
+                <p id="coverageRange"></p>
+            </div>
+            <div class="card">
+                <h3>7-Day Change</h3>
+                <div class="value" id="sevenDayCount">--</div>
+                <div class="pill" id="sevenDayChange">--</div>
+            </div>
+            <div class="card">
+                <h3>28-Day Change</h3>
+                <div class="value" id="twentyEightDayCount">--</div>
+                <div class="pill" id="twentyEightDayChange">--</div>
+            </div>
+            <div class="card">
+                <h3>Forecast Next 7 Days</h3>
+                <div class="value" id="forecastTotal">--</div>
+                <p id="forecastDetail"></p>
+            </div>
+        </div>
+
+        <section class="card chart">
+            <h2>Daily Incident Trend</h2>
+            <svg id="trendChart"></svg>
+        </section>
+
+        <div class="section-grid">
+            <div class="card">
+                <h2>CompStat Table</h2>
+                <table id="compstatTable">
+                    <thead>
+                    <tr>
+                        <th>Window</th>
+                        <th>Count</th>
+                        <th>vs Prior</th>
+                        <th>YoY</th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="card chart">
+                <h2>Crime Category Mix</h2>
+                <svg id="categoryChart"></svg>
+            </div>
+        </div>
+
+        <section class="card">
+            <h2>Random Forest Forecast (7 days)</h2>
+            <div id="forecastList"></div>
+        </section>
     </section>
 
-    <div class="section-grid">
-        <div class="card">
-            <h2>CompStat Table</h2>
-            <table id="compstatTable">
-                <thead>
-                <tr>
-                    <th>Window</th>
-                    <th>Count</th>
-                    <th>vs Prior</th>
-                    <th>YoY</th>
-                </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+    <section id="time-tempo" class="tab-section">
+        <div class="section-grid">
+            <div class="card chart">
+                <h2>Hour-of-Day Rhythm</h2>
+                <svg id="hourBarChart"></svg>
+            </div>
+            <div class="card chart">
+                <h2>Day vs Hour Heatmap</h2>
+                <svg id="dayHourHeatmap"></svg>
+            </div>
         </div>
-        <div class="card chart">
-            <h2>Crime Category Mix</h2>
-            <svg id="categoryChart"></svg>
-        </div>
-    </div>
-
-    <section class="card">
-        <h2>Random Forest Forecast (7 days)</h2>
-        <div id="forecastList"></div>
     </section>
 
-    <section class="card">
-        <h2>Operational Notes</h2>
-        <ul>
-            <li>Use the API (FastAPI) at <code>/compstat</code>, <code>/timeseries</code>, and <code>/ml/*</code> for integration.</li>
-            <li>Deploy backend to Render (FastAPI + Uvicorn) and serve this D3 front-end statically.</li>
-            <li>Refresh caches via <code>POST /cache/refresh</code> after loading new incidents.</li>
-        </ul>
+    <section id="beats" class="tab-section">
+        <div class="section-grid">
+            <div class="card chart">
+                <h2>Beat Workload</h2>
+                <svg id="beatBarChart"></svg>
+            </div>
+            <div class="card chart">
+                <h2>Beat vs Hour Intensity</h2>
+                <svg id="beatHourHeatmap"></svg>
+            </div>
+        </div>
+    </section>
+
+    <section id="offense" class="tab-section">
+        <div class="section-grid">
+            <div class="card chart">
+                <h2>Category Trend (Weekly)</h2>
+                <svg id="categoryStackedArea"></svg>
+            </div>
+            <div class="card chart">
+                <h2>Violent vs Non-Violent Mix</h2>
+                <svg id="violenceDonut"></svg>
+            </div>
+        </div>
+    </section>
+
+    <section id="cases" class="tab-section">
+        <div class="card">
+            <h2>Case Intelligence Search</h2>
+            <form id="caseSearchForm" class="case-search">
+                <input type="text" id="caseQuery" placeholder="Case number or keyword (e.g., ROBBERY, 2024-0319)">
+                <button type="submit">Search</button>
+            </form>
+            <div id="caseResults" class="case-results"></div>
+        </div>
     </section>
 </div>
 
