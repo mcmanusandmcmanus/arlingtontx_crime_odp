@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from functools import lru_cache
-from typing import Dict, Optional
+from typing import Callable, Dict, Optional, TypeVar, cast
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -20,24 +19,29 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 repository = CrimeDataRepository()
 
+_model_cache: Dict[str, Dict[str, Optional[object]]] = {
+    "random_forest": {"latest_ts": None, "result": None},
+    "sarimax": {"latest_ts": None, "result": None},
+}
 
-@lru_cache(maxsize=1)
-def _random_forest_cache() -> RandomForestForecast:
+TForecast = TypeVar("TForecast", RandomForestForecast, SarimaxForecast)
+
+
+def _train_if_stale(model_key: str, trainer: Callable[[object], TForecast]) -> TForecast:
     df = repository.load()
-    return train_random_forest(df)
-
-
-@lru_cache(maxsize=1)
-def _sarimax_cache() -> SarimaxForecast:
-    df = repository.load()
-    return train_sarimax(df)
+    latest_ts = df["occurred_ts"].max()
+    cache = _model_cache[model_key]
+    if cache["result"] is None or cache["latest_ts"] != latest_ts:
+        cache["result"] = trainer(df)
+        cache["latest_ts"] = latest_ts
+    return cast(TForecast, cache["result"])
 
 
 @app.get("/health")
@@ -127,7 +131,7 @@ def aggregates_heatmap(
 
 @app.get("/ml/random-forest")
 def random_forest_forecast() -> Dict[str, object]:
-    result = _random_forest_cache()
+    result = _train_if_stale("random_forest", train_random_forest)
     return {
         "metrics": result.metrics,
         "next_week_forecast": result.next_week,
@@ -136,7 +140,7 @@ def random_forest_forecast() -> Dict[str, object]:
 
 @app.get("/ml/sarimax")
 def sarimax_forecast() -> Dict[str, object]:
-    result = _sarimax_cache()
+    result = _train_if_stale("sarimax", train_sarimax)
     summary_lines = result.model_summary.splitlines()
     trimmed_summary = "\n".join(summary_lines[:20])
     return {
@@ -149,8 +153,9 @@ def sarimax_forecast() -> Dict[str, object]:
 @app.post("/cache/refresh")
 def refresh_cache() -> Dict[str, str]:
     repository.refresh()
-    _random_forest_cache.cache_clear()
-    _sarimax_cache.cache_clear()
+    for cache in _model_cache.values():
+        cache["latest_ts"] = None
+        cache["result"] = None
     return {"status": "refreshed"}
 
 
@@ -161,8 +166,10 @@ def case_search(
 ) -> Dict[str, object]:
     df = repository.load()
     q_lower = q.lower()
-    case_matches = df["Case Number"].astype(str).str.contains(q_lower, case=False, na=False)
-    description_matches = df["Description"].fillna("").str.contains(q_lower, case=False, na=False)
+    case_matches = df["Case Number"].astype(str).str.contains(q_lower, case=False, na=False, regex=False)
+    description_matches = df["Description"].fillna("").str.contains(
+        q_lower, case=False, na=False, regex=False
+    )
     matches = df.loc[case_matches | description_matches].copy()
     matches = matches.sort_values("occurred_ts", ascending=False).head(limit)
     matches["occurred_ts"] = matches["occurred_ts"].dt.strftime("%Y-%m-%d %H:%M")

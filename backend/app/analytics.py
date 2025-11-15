@@ -38,8 +38,15 @@ class WindowComparison:
         return payload
 
 
-def _filter_by_range(df: pd.DataFrame, start: datetime, end: datetime) -> pd.DataFrame:
-    mask = (df["occurred_ts"] >= start) & (df["occurred_ts"] <= end)
+def _filter_by_range(
+    df: pd.DataFrame,
+    start_date: date,
+    end_date: date,
+) -> pd.DataFrame:
+    """Return rows between start/end dates (inclusive) using precomputed occurred_date."""
+    if "occurred_date" not in df.columns:
+        df = df.assign(occurred_date=df["occurred_ts"].dt.date)
+    mask = (df["occurred_date"] >= start_date) & (df["occurred_date"] <= end_date)
     return df.loc[mask]
 
 
@@ -52,6 +59,7 @@ def compute_compstat(
     if as_of is None:
         as_of = df["occurred_ts"].max()
     df = df[df["occurred_ts"] <= as_of]
+    as_of_date = as_of.date()
     results: Dict[str, List[Dict[str, Optional[float]]]] = {}
     groups = [("All", df)]
     if group_by and group_by in df.columns:
@@ -60,21 +68,24 @@ def compute_compstat(
     for group_name, group_df in groups:
         group_results: List[Dict[str, Optional[float]]] = []
         for window in windows:
-            end = as_of
-            start = end - timedelta(days=window)
-            current_df = _filter_by_range(group_df, start, end)
-            previous_start = start - timedelta(days=window)
-            previous_end = start
+            window_days = max(window, 1)
+            end_date = as_of_date
+            start_date = as_of_date - timedelta(days=window_days - 1)
+            current_df = _filter_by_range(group_df, start_date, end_date)
+
+            previous_end = start_date - timedelta(days=1)
+            previous_start = previous_end - timedelta(days=window_days - 1)
             previous_df = _filter_by_range(group_df, previous_start, previous_end)
-            yoy_start = start - timedelta(days=365)
-            yoy_end = end - timedelta(days=365)
+
+            yoy_start = start_date - timedelta(days=365)
+            yoy_end = end_date - timedelta(days=365)
             yoy_df = _filter_by_range(group_df, yoy_start, yoy_end)
 
             result = WindowComparison(
                 label=group_name,
-                window_days=window,
-                start_date=start.date(),
-                end_date=end.date(),
+                window_days=window_days,
+                start_date=start_date,
+                end_date=end_date,
                 current_count=int(current_df.shape[0]),
                 previous_period_count=int(previous_df.shape[0]),
                 yoy_count=int(yoy_df.shape[0]),

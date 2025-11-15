@@ -30,8 +30,8 @@ def main() -> None:
     )
     recent_series = build_time_series(df, freq="D", periods=60).to_dict(orient="records")
 
-    report_path = Path("analysis/eda_report.md")
-    summary_path = Path("analysis/eda_summary.json")
+    report_path = PROJECT_ROOT / "analysis" / "eda_report.md"
+    summary_path = PROJECT_ROOT / "analysis" / "eda_summary.json"
 
     top_categories = df.groupby("crime_category").size().sort_values(ascending=False).head(10)
     peak_hour = (

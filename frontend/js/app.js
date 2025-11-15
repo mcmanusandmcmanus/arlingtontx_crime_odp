@@ -2,9 +2,26 @@ const API_STORAGE_KEY = "compstat_api_base";
 let API_BASE = "http://localhost:8000";
 let lastStatusTimeout = null;
 
+function safeStorageGet(key) {
+    try {
+        return window.localStorage.getItem(key);
+    } catch (error) {
+        console.warn("localStorage get failed", error);
+        return null;
+    }
+}
+
+function safeStorageSet(key, value) {
+    try {
+        window.localStorage.setItem(key, value);
+    } catch (error) {
+        console.warn("localStorage set failed", error);
+    }
+}
+
 function resolveInitialApiBase() {
     const bodyAttr = document.body?.dataset?.apiBase;
-    const stored = window.localStorage.getItem(API_STORAGE_KEY);
+    const stored = safeStorageGet(API_STORAGE_KEY);
     const globalVar = window.API_BASE_URL;
     API_BASE = (globalVar || stored || bodyAttr || API_BASE).replace(/\/$/, "");
     const input = document.getElementById("apiBaseInput");
@@ -47,10 +64,10 @@ function formatChange(value) {
 function updateApiBase(url) {
     if (!url) return;
     API_BASE = url.replace(/\/$/, "");
-    window.localStorage.setItem(API_STORAGE_KEY, API_BASE);
+    safeStorageSet(API_STORAGE_KEY, API_BASE);
     const input = document.getElementById("apiBaseInput");
     if (input) input.value = API_BASE;
-    setApiStatus(`Using ${API_BASE} – refreshing data...`);
+    setApiStatus(`Using ${API_BASE} - refreshing data...`);
     loadDashboard();
 }
 
@@ -323,36 +340,46 @@ function updateForecastCard(forecast) {
 
 function renderCaseResults(results) {
     const container = document.getElementById("caseResults");
+    container.innerHTML = "";
     if (!results.length) {
-        container.innerHTML = "<p>No matching cases found.</p>";
+        const emptyState = document.createElement("p");
+        emptyState.textContent = "No matching cases found.";
+        container.appendChild(emptyState);
         return;
     }
+
+    const headers = ["Case", "Date/Time", "Category", "Beat", "Violent", "Description"];
     const table = document.createElement("table");
-    table.innerHTML = `
-        <thead>
-            <tr>
-                <th>Case</th>
-                <th>Date/Time</th>
-                <th>Category</th>
-                <th>Beat</th>
-                <th>Violent</th>
-                <th>Description</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${results.map((row) => `
-                <tr>
-                    <td>${row.case_number}</td>
-                    <td>${row.occurred_ts}</td>
-                    <td>${row.crime_category}</td>
-                    <td>${row.beat}</td>
-                    <td>${row.violent ? "Yes" : "No"}</td>
-                    <td>${row.description || ""}</td>
-                </tr>
-            `).join("")}
-        </tbody>
-    `;
-    container.innerHTML = "";
+    const thead = document.createElement("thead");
+    const headerRow = document.createElement("tr");
+    headers.forEach((label) => {
+        const th = document.createElement("th");
+        th.textContent = label;
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+
+    const tbody = document.createElement("tbody");
+    results.forEach((row) => {
+        const tr = document.createElement("tr");
+        const cells = [
+            row.case_number,
+            row.occurred_ts,
+            row.crime_category,
+            row.beat,
+            row.violent ? "Yes" : "No",
+            row.description || "",
+        ];
+        cells.forEach((value) => {
+            const td = document.createElement("td");
+            td.textContent = value ?? "";
+            tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+    });
+
+    table.appendChild(thead);
+    table.appendChild(tbody);
     container.appendChild(table);
 }
 
@@ -403,33 +430,51 @@ function setupApiConfig() {
 async function loadDashboard() {
     try {
         setApiStatus(`Loading analytics from ${API_BASE}...`);
-        const [
-            health,
-            compstat,
-            series,
-            distributions,
-            forecast,
-            hourCounts,
-            dayHourHeatmap,
-            beatCounts,
-            beatHourHeatmap,
-            violentSplit,
-            categorySeries,
-        ] = await Promise.all([
-            fetchJSON("/health"),
-            fetchJSON("/compstat"),
-            fetchJSON("/timeseries?freq=D&periods=90"),
-            fetchJSON("/eda/distributions"),
-            fetchJSON("/ml/random-forest"),
-            fetchJSON("/aggregates/count-by?dimension=hour_of_day"),
-            fetchJSON("/aggregates/heatmap?dim_x=day_of_week&dim_y=hour_of_day"),
-            fetchJSON("/aggregates/count-by?dimension=Beats&limit=12"),
-            fetchJSON("/aggregates/heatmap?dim_x=Beats&dim_y=hour_of_day"),
-            fetchJSON("/aggregates/count-by?dimension=violent_flag"),
-            fetchJSON("/timeseries?freq=W&group_by=crime_category&periods=26"),
-        ]);
+        const requiredEndpoints = [
+            ["health", "/health"],
+            ["compstat", "/compstat"],
+            ["series", "/timeseries?freq=D&periods=90"],
+            ["distributions", "/eda/distributions"],
+        ];
+        const requiredResults = await Promise.allSettled(
+            requiredEndpoints.map(([, path]) => fetchJSON(path)),
+        );
+        const failedRequiredIndex = requiredResults.findIndex((result) => result.status !== "fulfilled");
+        if (failedRequiredIndex !== -1) {
+            const [label] = requiredEndpoints[failedRequiredIndex];
+            throw new Error(`Failed to load ${label}`);
+        }
+        const requiredData = {};
+        requiredEndpoints.forEach(([label], index) => {
+            requiredData[label] = requiredResults[index].value;
+        });
 
-        const compstatEntries = compstat["All"] || [];
+        const optionalEndpoints = {
+            forecast: "/ml/random-forest",
+            hourCounts: "/aggregates/count-by?dimension=hour_of_day",
+            dayHourHeatmap: "/aggregates/heatmap?dim_x=day_of_week&dim_y=hour_of_day",
+            beatCounts: "/aggregates/count-by?dimension=Beats&limit=12",
+            beatHourHeatmap: "/aggregates/heatmap?dim_x=Beats&dim_y=hour_of_day",
+            violentSplit: "/aggregates/count-by?dimension=violent_flag",
+            categorySeries: "/timeseries?freq=W&group_by=crime_category&periods=26",
+        };
+        const optionalEntries = Object.entries(optionalEndpoints);
+        const optionalResults = await Promise.allSettled(
+            optionalEntries.map(([, path]) => fetchJSON(path)),
+        );
+        const optionalData = {};
+        const failedOptional = [];
+        optionalEntries.forEach(([label], index) => {
+            const result = optionalResults[index];
+            if (result.status === "fulfilled") {
+                optionalData[label] = result.value;
+            } else {
+                failedOptional.push(label);
+                console.warn(`Optional endpoint ${label} failed`, result.reason);
+            }
+        });
+
+        const compstatEntries = requiredData.compstat["All"] || [];
         if (compstatEntries.length) {
             const stats7 = compstatEntries.find((entry) => entry.window_days === 7);
             const stats28 = compstatEntries.find((entry) => entry.window_days === 28);
@@ -450,29 +495,60 @@ async function loadDashboard() {
             updateCompstatTable(compstatEntries);
         }
 
+        const health = requiredData.health;
         document.getElementById("totalIncidents").textContent = health.records.toLocaleString();
         document.getElementById("coverageRange").textContent = `${health.earliest?.split("T")[0]} - ${health.latest?.split("T")[0]}`;
 
-        renderLineChart(series);
-        renderCategoryChart(distributions.crime_category.slice(0, 5));
-        updateForecastCard(forecast);
+        renderLineChart(requiredData.series);
+        renderCategoryChart(requiredData.distributions.crime_category.slice(0, 5));
 
-        renderBarChart("#hourBarChart", hourCounts.values.map((v) => ({
-            label: `${String(v.hour_of_day).padStart(2, "0")}:00`,
-            count: v.count,
-        })), "label", (d) => d.label);
+        if (optionalData.forecast) {
+            updateForecastCard(optionalData.forecast);
+        } else {
+            document.getElementById("forecastTotal").textContent = "--";
+            document.getElementById("forecastDetail").textContent = "Forecast unavailable";
+            document.getElementById("forecastList").innerHTML = "<p>Forecast unavailable.</p>";
+        }
 
-        renderHeatmap("#dayHourHeatmap", dayHourHeatmap);
-        renderBarChart("#beatBarChart", beatCounts.values, "Beats", (d) => d.Beats || "Unknown");
-        renderHeatmap("#beatHourHeatmap", beatHourHeatmap);
+        if (optionalData.hourCounts?.values) {
+            renderBarChart(
+                "#hourBarChart",
+                optionalData.hourCounts.values.map((v) => ({
+                    label: `${String(v.hour_of_day).padStart(2, "0")}:00`,
+                    count: v.count,
+                })),
+                "label",
+                (d) => d.label,
+            );
+        }
 
-        renderDonut("#violenceDonut", violentSplit.values.map((v) => ({
-            label: v.violent_flag ? "Violent" : "Non-Violent",
-            count: v.count,
-        })), "label");
+        if (optionalData.dayHourHeatmap) {
+            renderHeatmap("#dayHourHeatmap", optionalData.dayHourHeatmap);
+        }
+        if (optionalData.beatCounts?.values) {
+            renderBarChart("#beatBarChart", optionalData.beatCounts.values, "Beats", (d) => d.Beats || "Unknown");
+        }
+        if (optionalData.beatHourHeatmap) {
+            renderHeatmap("#beatHourHeatmap", optionalData.beatHourHeatmap);
+        }
 
-        renderStackedArea("#categoryStackedArea", categorySeries);
-        setApiStatus(`Last synced from ${API_BASE} at ${new Date().toLocaleTimeString()}`);
+        if (optionalData.violentSplit?.values) {
+            renderDonut(
+                "#violenceDonut",
+                optionalData.violentSplit.values.map((v) => ({
+                    label: v.violent_flag ? "Violent" : "Non-Violent",
+                    count: v.count,
+                })),
+                "label",
+            );
+        }
+
+        if (optionalData.categorySeries) {
+            renderStackedArea("#categoryStackedArea", optionalData.categorySeries);
+        }
+
+        const partialMessage = failedOptional.length ? ` (partial data: ${failedOptional.join(", ")})` : "";
+        setApiStatus(`Last synced from ${API_BASE} at ${new Date().toLocaleTimeString()}${partialMessage}`);
     } catch (error) {
         console.error("Dashboard failed to load", error);
         setApiStatus(`Failed to load from ${API_BASE}: ${error.message}`, true);
