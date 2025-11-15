@@ -1,4 +1,28 @@
-const API_BASE = window.API_BASE_URL || "http://localhost:8000";
+const API_STORAGE_KEY = "compstat_api_base";
+let API_BASE = "http://localhost:8000";
+let lastStatusTimeout = null;
+
+function resolveInitialApiBase() {
+    const bodyAttr = document.body?.dataset?.apiBase;
+    const stored = window.localStorage.getItem(API_STORAGE_KEY);
+    const globalVar = window.API_BASE_URL;
+    API_BASE = (globalVar || stored || bodyAttr || API_BASE).replace(/\/$/, "");
+    const input = document.getElementById("apiBaseInput");
+    if (input) input.value = API_BASE;
+}
+
+function setApiStatus(message, isError = false) {
+    const el = document.getElementById("apiStatusMessage");
+    if (!el) return;
+    el.textContent = message;
+    el.style.color = isError ? "#f87171" : "#94a3b8";
+    if (lastStatusTimeout) clearTimeout(lastStatusTimeout);
+    if (!isError && message) {
+        lastStatusTimeout = setTimeout(() => {
+            el.textContent = "";
+        }, 7000);
+    }
+}
 const DAY_ORDER = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 async function fetchJSON(path) {
@@ -18,6 +42,16 @@ function formatChange(value) {
         text: `${prefix}${percent}%`,
         className: `pill ${direction}`,
     };
+}
+
+function updateApiBase(url) {
+    if (!url) return;
+    API_BASE = url.replace(/\/$/, "");
+    window.localStorage.setItem(API_STORAGE_KEY, API_BASE);
+    const input = document.getElementById("apiBaseInput");
+    if (input) input.value = API_BASE;
+    setApiStatus(`Using ${API_BASE} – refreshing data...`);
+    loadDashboard();
 }
 
 function updateCompstatTable(entries) {
@@ -355,8 +389,20 @@ function setupCaseSearch() {
     });
 }
 
+function setupApiConfig() {
+    const form = document.getElementById("apiConfigForm");
+    if (!form) return;
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const input = document.getElementById("apiBaseInput");
+        if (!input || !input.value) return;
+        updateApiBase(input.value.trim());
+    });
+}
+
 async function loadDashboard() {
     try {
+        setApiStatus(`Loading analytics from ${API_BASE}...`);
         const [
             health,
             compstat,
@@ -426,8 +472,10 @@ async function loadDashboard() {
         })), "label");
 
         renderStackedArea("#categoryStackedArea", categorySeries);
+        setApiStatus(`Last synced from ${API_BASE} at ${new Date().toLocaleTimeString()}`);
     } catch (error) {
         console.error("Dashboard failed to load", error);
+        setApiStatus(`Failed to load from ${API_BASE}: ${error.message}`, true);
     }
 }
 
@@ -441,7 +489,9 @@ function renderCategoryChart(data) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    resolveInitialApiBase();
     setupTabs();
     setupCaseSearch();
+    setupApiConfig();
     loadDashboard();
 });

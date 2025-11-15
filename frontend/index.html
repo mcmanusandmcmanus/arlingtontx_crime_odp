@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 </head>
-<body>
+<body data-api-base="http://localhost:8000">
 <div class="layout">
     <header>
         <h1>Arlington East District CompStat</h1>
@@ -21,6 +21,16 @@
         <button class="tab-button" data-target="offense">Crime Types &amp; Violence</button>
         <button class="tab-button" data-target="cases">Case Intelligence</button>
     </nav>
+
+    <section class="card config-card">
+        <h2>API Endpoint</h2>
+        <p class="muted">Point the dashboard at your Render FastAPI service (saved locally, no backend changes required).</p>
+        <form id="apiConfigForm" class="api-config">
+            <input type="url" id="apiBaseInput" placeholder="https://arlington-compstat-api.onrender.com" />
+            <button type="submit">Update &amp; Reload</button>
+        </form>
+        <small id="apiStatusMessage"></small>
+    </section>
 
     <section id="overview" class="tab-section active">
         <div class="hero" id="kpiCards">
@@ -132,4 +142,3 @@
 <script src="js/app.js"></script>
 </body>
 </html>
-
